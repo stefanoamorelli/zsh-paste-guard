@@ -5,6 +5,9 @@
 [![Shell: zsh 5.1+](https://img.shields.io/badge/Shell-zsh%205.1%2B-green.svg)](https://zsh.sourceforge.io/)
 [![MITRE ATT&CK: T1204.004](https://img.shields.io/badge/MITRE%20ATT%26CK-T1204.004-red.svg)](https://attack.mitre.org/techniques/T1204/004/)
 
+https://github.com/user-attachments/assets/428fd671-cd7a-4485-bb1b-83f1978b78f5
+
+
 `zsh` plugin that intercepts pasted commands and requires typed confirmation before execution.
 
 ## Threat
