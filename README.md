@@ -31,6 +31,8 @@ Set these environment variables in your `.zshrc` before sourcing the plugin.
 
 | Variable | Default | Description |
 |---|---|---|
+| `PASTE_GUARD_MODE` | `confirm` | `confirm` shows the command and asks for typed confirmation. `strict` blocks all pasted commands unless `PASTE_GUARD_ALLOW_PASTE=1` is exported. |
+| `PASTE_GUARD_ALLOW_PASTE` | _(unset)_ | Only used in strict mode. Set to `1` to allow pasting (still requires typed confirmation). |
 | `PASTE_GUARD_CONFIRM_TEXT` | `I understand` | Phrase the user must type to confirm execution |
 | `PASTE_GUARD_WARNING_MESSAGE` | `You pasted this command from outside the terminal.\nOnly run commands you fully understand.` | Warning shown when a paste is detected |
 
@@ -68,6 +70,26 @@ fi
 ```
 
 </details>
+
+### Strict mode
+
+Strict mode completely blocks pasted commands — there is no confirmation prompt, no way to proceed. This is useful for non-technical users (PMs, designers, support staff) who may type the confirmation phrase without understanding what they are pasting.
+
+Enable it in your team's shared shell profile:
+
+```sh
+export PASTE_GUARD_MODE=strict
+```
+
+When a paste is detected, the user sees the blocked command and a message telling them pasting is disabled. There is no option to proceed.
+
+Developers who need to paste commands can opt in per-session:
+
+```sh
+export PASTE_GUARD_ALLOW_PASTE=1
+```
+
+This falls through to the normal confirm flow — the command is shown and the user must still type the confirmation phrase. The env var is not persisted across sessions unless added to `.zshrc`.
 
 ## Internals
 

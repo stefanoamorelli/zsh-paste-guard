@@ -10,6 +10,18 @@
 #
 # Configuration (set these env vars before sourcing, or export in .zshrc):
 #
+#   PASTE_GUARD_MODE
+#     Operating mode. "confirm" (default) shows the command and asks for
+#     typed confirmation. "strict" blocks all pasted commands unless
+#     PASTE_GUARD_ALLOW_PASTE=1 is exported (in which case it falls
+#     through to the confirm flow).
+#     Default: "confirm"
+#
+#   PASTE_GUARD_ALLOW_PASTE
+#     Only used in strict mode. Set to "1" to allow pasted commands
+#     (they still go through the confirm flow). When unset or any
+#     other value, pasting is blocked entirely.
+#
 #   PASTE_GUARD_CONFIRM_TEXT
 #     The text the user must type to confirm execution.
 #     Default: "I understand"
@@ -52,6 +64,34 @@ zle -N bracketed-paste __paste_guard_bracketed_paste
 function __paste_guard_accept_line() {
   if (( __paste_guard_pasted )) && [[ -n "$BUFFER" ]]; then
     local pasted_cmd="$BUFFER"
+
+    # Determine operating mode (default: confirm)
+    local mode="${PASTE_GUARD_MODE:-confirm}"
+    if [[ "$mode" != "strict" ]]; then
+      mode="confirm"
+    fi
+
+    # Strict mode: block paste unless PASTE_GUARD_ALLOW_PASTE=1
+    if [[ "$mode" == "strict" && "${PASTE_GUARD_ALLOW_PASTE}" != "1" ]]; then
+      __paste_guard_pasted=0
+      BUFFER=""
+      CURSOR=0
+      <PERSON>print ""
+      print "\033[1;31m================================================================\033[0m"
+      print "\033[1;31m  PASTED COMMAND BLOCKED\033[0m"
+      print "\033[1;31m================================================================\033[0m"
+      print ""
+      print "\033[1;37m  $pasted_cmd\033[0m"
+      print ""
+      print "\033[1;31m================================================================\033[0m"
+      print "\033[0;31m  Pasting commands is disabled in strict mode.\033[0m"
+      print "\033[0;31m  Contact your team lead or export PASTE_GUARD_ALLOW_PASTE=1\033[0m"
+      print "\033[0;31m  to enable pasting.\033[0m"
+      print "\033[1;31m================================================================\033[0m"
+      print ""
+      <PERSON> .reset-prompt
+      return
+    fi
 
     # Configurable confirmation text and warning message
     local confirm_text="${PASTE_GUARD_CONFIRM_TEXT:-I understand}"

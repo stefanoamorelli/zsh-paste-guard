@@ -180,6 +180,97 @@ assert_equals "Paste flag 0 does not trigger the guard" \
   "skipped" "$result"
 
 # ---------------------------------------------------------------------------
+# Test 10: PASTE_GUARD_MODE defaults to "confirm"
+# ---------------------------------------------------------------------------
+print ""
+print -r -- "--- Strict mode ---"
+
+result=$(zsh -c '
+  unset PASTE_GUARD_MODE
+  local mode="${PASTE_GUARD_MODE:-confirm}"
+  if [[ "$mode" != "strict" ]]; then
+    mode="confirm"
+  fi
+  print -r -- "$mode"
+')
+assert_equals "PASTE_GUARD_MODE defaults to confirm" \
+  "confirm" "$result"
+
+# ---------------------------------------------------------------------------
+# Test 11: Strict mode without PASTE_GUARD_ALLOW_PASTE blocks paste
+# ---------------------------------------------------------------------------
+result=$(zsh -c '
+  export PASTE_GUARD_MODE=strict
+  unset PASTE_GUARD_ALLOW_PASTE
+  __paste_guard_pasted=1
+  BUFFER="echo malicious"
+  local mode="${PASTE_GUARD_MODE:-confirm}"
+  if [[ "$mode" != "strict" ]]; then
+    mode="confirm"
+  fi
+  if (( __paste_guard_pasted )) && [[ -n "$BUFFER" ]]; then
+    if [[ "$mode" == "strict" && "${PASTE_GUARD_ALLOW_PASTE}" != "1" ]]; then
+      print "blocked"
+    else
+      print "confirm-flow"
+    fi
+  else
+    print "skipped"
+  fi
+')
+assert_equals "Strict mode without allow var blocks paste" \
+  "blocked" "$result"
+
+# ---------------------------------------------------------------------------
+# Test 12: Strict mode with PASTE_GUARD_ALLOW_PASTE=1 falls through
+# ---------------------------------------------------------------------------
+result=$(zsh -c '
+  export PASTE_GUARD_MODE=strict
+  export PASTE_GUARD_ALLOW_PASTE=1
+  __paste_guard_pasted=1
+  BUFFER="echo hello"
+  local mode="${PASTE_GUARD_MODE:-confirm}"
+  if [[ "$mode" != "strict" ]]; then
+    mode="confirm"
+  fi
+  if (( __paste_guard_pasted )) && [[ -n "$BUFFER" ]]; then
+    if [[ "$mode" == "strict" && "${PASTE_GUARD_ALLOW_PASTE}" != "1" ]]; then
+      print "blocked"
+    else
+      print "confirm-flow"
+    fi
+  else
+    print "skipped"
+  fi
+')
+assert_equals "Strict mode with PASTE_GUARD_ALLOW_PASTE=1 falls through to confirm" \
+  "confirm-flow" "$result"
+
+# ---------------------------------------------------------------------------
+# Test 13: Invalid PASTE_GUARD_MODE defaults to confirm
+# ---------------------------------------------------------------------------
+result=$(zsh -c '
+  export PASTE_GUARD_MODE=banana
+  __paste_guard_pasted=1
+  BUFFER="echo hello"
+  local mode="${PASTE_GUARD_MODE:-confirm}"
+  if [[ "$mode" != "strict" ]]; then
+    mode="confirm"
+  fi
+  if (( __paste_guard_pasted )) && [[ -n "$BUFFER" ]]; then
+    if [[ "$mode" == "strict" && "${PASTE_GUARD_ALLOW_PASTE}" != "1" ]]; then
+      print "blocked"
+    else
+      print "confirm-flow"
+    fi
+  else
+    print "skipped"
+  fi
+')
+assert_equals "Invalid PASTE_GUARD_MODE defaults to confirm flow" \
+  "confirm-flow" "$result"
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 print ""
