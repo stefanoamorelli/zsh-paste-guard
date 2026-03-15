@@ -21,9 +21,67 @@ https://github.com/user-attachments/assets/428fd671-cd7a-4485-bb1b-83f1978b78f5
 
 ## Install
 
+<details>
+<summary>Manual</summary>
+
 ```sh
 make install
 ```
+
+</details>
+
+<details>
+<summary>Oh My Zsh</summary>
+
+```sh
+git clone https://github.com/stefanoamorelli/zsh-paste-guard.git \
+  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-paste-guard
+```
+
+Then add `zsh-paste-guard` to the `plugins` array in your `.zshrc`:
+
+```sh
+plugins=(... zsh-paste-guard)
+```
+
+</details>
+
+<details>
+<summary>zinit</summary>
+
+```sh
+zinit light stefanoamorelli/zsh-paste-guard
+```
+
+</details>
+
+<details>
+<summary>antigen</summary>
+
+```sh
+antigen bundle stefanoamorelli/zsh-paste-guard
+```
+
+</details>
+
+<details>
+<summary>zplug</summary>
+
+```sh
+zplug "stefanoamorelli/zsh-paste-guard"
+```
+
+</details>
+
+<details>
+<summary>Sheldon</summary>
+
+```toml
+[plugins.zsh-paste-guard]
+github = "stefanoamorelli/zsh-paste-guard"
+```
+
+</details>
 
 ## Configuration
 
